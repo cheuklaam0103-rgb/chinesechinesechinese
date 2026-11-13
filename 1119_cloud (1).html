@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>詞語之旅</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: LXGW WenKai TC 雲端繁體楷書備援 -->
+    <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* 防雙擊縮放、觸控優化與全站統一「華康香港標準楷書」設定 */
+        * {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            font-family: "華康香港標準楷書", "DFKai-HK", "DFKaiHK-Std", "華康楷書體", "DFKai-SB", "標楷體", "LXGW WenKai TC", serif !important;
+        }
+
+        /* 保留 FontAwesome 圖示字體正常顯示 */
+        .fa, .fas, .far, .fal, .fab, .fa-solid, .fa-regular, .fa-brands {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+        }
+
+        body {
+            font-family: "華康香港標準楷書", "DFKai-HK", "DFKaiHK-Std", "華康楷書體", "DFKai-SB", "標楷體", "LXGW WenKai TC", serif;
+            background-color: #0f1416;
+            color: #e2d8c3;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at center, #1e262a 0%, #0a0d0e 100%);
+        }
+
+        input, textarea, select, button {
+            font-family: "華康香港標準楷書", "DFKai-HK", "DFKaiHK-Std", "華康楷書體", "DFKai-SB", "標楷體", "LXGW WenKai TC", serif !important;
+        }
+
+        .font-calligraphy {
+            font-family: "華康香港標準楷書", "DFKai-HK", "DFKaiHK-Std", "華康楷書體", "DFKai-SB", "標楷體", "LXGW WenKai TC", serif;
+        }
+
+        /* 墨跡暈染背景效果 */
+        .ink-bg {
+            background: linear-gradient(135deg, rgba(20,26,29,0.95) 0%, rgba(12,16,18,0.98) 100%),
+                        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        .ancient-card {
+            background: rgba(28, 23, 20, 0.85);
+            border: 2px solid #8b6d43;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.1), 0 8px 20px rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        /* 古風按鈕樣式 */
+        .ancient-btn {
+            background: linear-gradient(180deg, #8b261d 0%, #5c1811 100%);
+            border: 1px solid #d4af37;
+            color: #f7e7c4;
+            text-shadow: 1px 1px 2px #000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.2s ease;
+            min-height: 48px;
+            min-width: 48px;
+        }
+
+        .ancient-btn:hover, .ancient-btn:active {
+            background: linear-gradient(180deg, #a63226 0%, #732017 100%);
+            border-color: #fff8dc;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .ancient-btn:disabled {
+            background: #3a3331;
+            border-color: #555;
+            color: #888;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .ancient-btn-gold {
+            background: linear-gradient(180deg, #b8860b 0%, #785806 100%);
+            border: 1px solid #ffe89c;
+            color: #ffffff;
+        }
+
+        .ancient-btn-gold:hover {
+            background: linear-gradient(180deg, #d4af37 0%, #966f0c 100%);
+        }
+
+        /* 卷軸樣式 */
+        .scroll-container {
+            background: #e8d8b7;
+            color: #2b1f1d;
+            border-left: 16px solid #6b1d16;
+            border-right: 16px solid #6b1d16;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .scroll-container::before, .scroll-container::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            width: calc(100% + 32px);
+            left: -16px;
+            height: 10px;
+            background: #4a120e;
+            border-radius: 3px;
+        }
+        .scroll-container::after {
+            top: auto;
+            bottom: -10px;
+        }
+
+        /* 語音播放中脈衝波動畫 */
+        @keyframes speechPulse {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+
+        .speech-active {
+            animation: speechPulse 1.2s infinite;
+            background-color: #b8860b !important;
+            color: #ffffff !important;
+        }
+
+        /* 血條與打擊特效 */
+        .hp-bar-inner {
+            transition: width 0.4s ease-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .damage-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes hitFlash {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(2.5) drop-shadow(0 0 15px red); }
+            100% { filter: brightness(1); }
+        }
+
+        .hit-effect {
+            animation: hitFlash 0.3s ease-out;
+        }
+    </style>
+    <!-- Firebase SDK (Compat 版，支援單一 HTML 檔案直接雲端讀寫) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body class="min-h-screen flex flex-col justify-between ink-bg text-stone-200">
+
+    <!-- 頂部導覽列 (Header) -->
+    <header class="w-full bg-stone-900/90 border-b-2 border-amber-700/60 px-4 py-2 flex justify-between items-center z-30 shadow-lg relative">
+        <div class="flex items-center space-x-3">
+            <div id="header-avatar-container" class="relative hidden">
+                <div class="w-10 h-14 rounded-sm border-2 border-amber-500 overflow-hidden bg-stone-800 shadow-md">
+                    <img id="header-avatar" src="" alt="頭像" onerror="handleImageError(this, gameState.role)" class="w-full h-full object-cover">
+                </div>
+                <span id="header-role-badge" class="absolute -bottom-1 -right-2 text-[10px] bg-amber-800 text-amber-100 px-1 rounded border border-amber-400">俠士</span>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-calligraphy text-amber-400 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-scroll text-amber-600 text-base"></i> 詞語大冒險
+                </h1>
+                <div id="header-user-info" class="text-xs text-amber-200/70 hidden">
+                    姓名：<span id="header-username" class="text-amber-300 font-semibold">--</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="openTeacherModal()" class="ancient-btn px-3 py-1.5 rounded-md text-xs md:text-sm flex items-center gap-1.5 border border-amber-600/50">
+                <i class="fa-solid fa-user-shield text-amber-400"></i>
+                <span>教師後台</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主要內容區域 -->
+    <main class="flex-grow container mx-auto px-4 py-6 flex flex-col justify-center items-center relative z-10 max-w-5xl">
+
+        <!-- 畫面 1: 創角與登入介面 -->
+        <div id="view-character-creation" class="w-full max-w-2xl">
+            <div class="scroll-container p-6 md:p-8 rounded-sm my-4">
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl md:text-4xl font-calligraphy text-stone-900 font-bold mb-2">踏入詞語之旅</h2>
+                    <p class="text-stone-700 text-sm md:text-base">請輸入姓名，並選擇角色，開啟詞語之旅。</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- 姓名輸入 -->
+                    <div>
+                        <label class="block text-stone-800 font-bold text-sm mb-1" for="input-student-name">
+                            <i class="fa-solid fa-pen-nib mr-1"></i> 姓名：
+                        </label>
+                        <input type="text" id="input-student-name" placeholder="請輸入姓名（例：張小明）" 
+                               onkeydown="if(event.key==='Enter') startGameJourney()"
+                               class="w-full px-4 py-3 rounded border-2 border-stone-400 bg-amber-50/80 text-stone-900 placeholder-stone-500 focus:outline-none focus:border-amber-800 shadow-inner text-base">
+                    </div>
+
+                    <!-- 角色選擇卡片 (全圖長方形展示) -->
+                    <div>
+                        <label class="block text-stone-800 font-bold text-sm mb-2">
+                            <i class="fa-solid fa-user-ninja mr-1"></i> 選擇角色：
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- 男角色 (持扇俠士) -->
+                            <div onclick="selectCharacter('male')" id="card-role-male" 
+                                 class="role-card cursor-pointer ancient-card p-3 rounded-lg border-2 border-amber-400 bg-amber-950/40 hover:border-amber-500 transition-all text-center flex flex-col items-center group">
+                                <div class="w-full h-48 md:h-60 rounded border border-amber-500/60 mb-2 group-hover:scale-[1.02] transition-transform bg-stone-950/80 overflow-hidden flex items-center justify-center relative p-1">
+                                    <img id="img-role-male" src="https://drive.google.com/uc?export=view&id=1pWMoqiMLkHN1qR5kQQdcgWOENYnj2Y6j" 
+                                         alt="持扇俠士" class="w-full h-full object-contain" 
+                                         onerror="handleImageError(this, 'male')">
+                                </div>
+                                <span class="font-bold text-amber-300 text-base md:text-lg">男</span>
+                            </div>
+
+                            <!-- 女角色 (持琵琶仙子) -->
+                            <div onclick="selectCharacter('female')" id="card-role-female" 
+                                 class="role-card cursor-pointer ancient-card p-3 rounded-lg border-2 border-stone-700 hover:border-amber-500 transition-all text-center flex flex-col items-center bg-stone-900/40 group">
+                                <div class="w-full h-48 md:h-60 rounded border border-amber-500/60 mb-2 group-hover:scale-[1.02] transition-transform bg-stone-950/80 overflow-hidden flex items-center justify-center relative p-1">
+                                    <img id="img-role-female" src="https://drive.google.com/uc?export=view&id=1KxyeO3eweakOu1Q8piq2pvmKcNIEV_Xl" 
+                                         alt="持琵琶仙子" class="w-full h-full object-contain" 
+                                         onerror="handleImageError(this, 'female')">
+                                </div>
+                                <span class="font-bold text-amber-300 text-base md:text-lg">女</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 開始按鈕 -->
+                    <div class="pt-2">
+                        <button onclick="startGameJourney()" class="w-full ancient-btn ancient-btn-gold py-3 text-lg font-bold rounded shadow-lg flex justify-center items-center gap-2">
+                            <span>啟程大冒險</span>
+                            <i class="fa-solid fa-feather-pointed"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 畫面 2: 地圖/關卡選擇 -->
+        <div id="view-map" class="w-full hidden space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl md:text-4xl font-calligraphy text-amber-300 tracking-wide">詞語地圖</h2>
+                <p class="text-stone-400 text-sm">歷練各個境域，掌握中文十詞，順利通關！</p>
+            </div>
+
+            <!-- 四大章節卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 第一章 -->
+                <div class="ancient-card p-5 rounded-lg border border-amber-600/40 flex flex-col justify-between hover:border-amber-400 transition">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs bg-amber-900/80 text-amber-200 px-2 py-0.5 rounded border border-amber-600">第一章</span>
+                            <span id="badge-ch1" class="text-xs text-stone-400">未解鎖</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-amber-300 mb-1 font-calligraphy text-2xl">名詞</h3>
+                        <p class="text-xs text-stone-300 mb-3">掌握 M5-M6 名詞詞義與填充句子。</p>
+                        <div class="flex flex-wrap gap-1.5 mb-4">
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                燃料 <button onclick="speakText('燃料')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                必需品 <button onclick="speakText('必需品')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                崗位 <button onclick="speakText('崗位')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <button id="btn-ch1" onclick="startChapter(1)" class="ancient-btn w-full py-2 text-sm font-bold rounded">
+                        進入試煉
+                    </button>
+                </div>
+
+                <!-- 第二章 -->
+                <div class="ancient-card p-5 rounded-lg border border-amber-600/40 flex flex-col justify-between hover:border-amber-400 transition">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs bg-amber-900/80 text-amber-200 px-2 py-0.5 rounded border border-amber-600">第二章</span>
+                            <span id="badge-ch2" class="text-xs text-stone-400">未解鎖</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-amber-300 mb-1 font-calligraphy text-2xl">動詞</h3>
+                        <p class="text-xs text-stone-300 mb-3">理解 M7-M8 動詞詞義與填充句子。</p>
+                        <div class="flex flex-wrap gap-1.5 mb-4">
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                尋求 <button onclick="speakText('尋求')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                維修 <button onclick="speakText('維修')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                發展 <button onclick="speakText('發展')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <button id="btn-ch2" onclick="startChapter(2)" class="ancient-btn w-full py-2 text-sm font-bold rounded">
+                        進入試煉
+                    </button>
+                </div>
+
+                <!-- 第三章 -->
+                <div class="ancient-card p-5 rounded-lg border border-amber-600/40 flex flex-col justify-between hover:border-amber-400 transition">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs bg-amber-900/80 text-amber-200 px-2 py-0.5 rounded border border-amber-600">第三章</span>
+                            <span id="badge-ch3" class="text-xs text-stone-400">未解鎖</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-amber-300 mb-1 font-calligraphy text-2xl">形容詞</h3>
+                        <p class="text-xs text-stone-300 mb-3">辨析 M9-M10 形容詞詞義與句子。</p>
+                        <div class="flex flex-wrap gap-1.5 mb-4">
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                積極 <button onclick="speakText('積極')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                唯一 <button onclick="speakText('唯一')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                            <span class="text-xs bg-stone-800 text-amber-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                                優質 <button onclick="speakText('優質')" class="hover:text-amber-400"><i class="fa-solid fa-volume-high text-[10px]"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <button id="btn-ch3" onclick="startChapter(3)" class="ancient-btn w-full py-2 text-sm font-bold rounded">
+                        進入試煉
+                    </button>
+                </div>
+
+                <!-- 第四章 -->
+                <div class="ancient-card p-5 rounded-lg border border-red-700/60 bg-red-950/20 flex flex-col justify-between hover:border-red-500 transition">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs bg-red-900/80 text-red-200 px-2 py-0.5 rounded border border-red-600">第四章 · 終極</span>
+                            <span id="badge-ch4" class="text-xs text-stone-400">未解鎖</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-red-400 mb-1 font-calligraphy text-2xl">終極試煉</h3>
+                        <p class="text-xs text-stone-300 mb-3"> M11-M12「詞語運用」綜合限時對決！</p>
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            <span class="text-[10px] bg-red-900/50 text-red-200 px-1.5 py-0.5 rounded border border-red-700/40">回合PK</span>
+                            <span class="text-[10px] bg-red-900/50 text-red-200 px-1.5 py-0.5 rounded border border-red-700/40">詞語運用</span>
+                        </div>
+                    </div>
+                    <button id="btn-ch4" onclick="startChapter(4)" class="ancient-btn ancient-btn-gold w-full py-2 text-sm font-bold rounded">
+                        終極試煉
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 畫面 3: 普通關卡答題介面 (第一至三章) -->
+        <div id="view-quiz" class="w-full max-w-3xl hidden">
+            <div class="ancient-card p-6 md:p-8 rounded-lg relative">
+                <!-- 頂部進度條與得分 -->
+                <div class="flex justify-between items-center border-b border-amber-800/60 pb-3 mb-6">
+                    <div>
+                        <span id="quiz-chapter-title" class="text-amber-400 font-bold font-calligraphy text-xl">第一章：名詞之境</span>
+                        <span id="quiz-progress" class="text-xs text-stone-400 ml-2">(1 / 3)</span>
+                    </div>
+                    <div class="text-amber-300 text-sm font-semibold">
+                        得分：<span id="quiz-score" class="text-amber-400 font-bold">0</span>
+                    </div>
+                </div>
+
+                <!-- 題目卡片 (含粵語發音按鈕) -->
+                <div class="mb-6 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div id="quiz-question-type" class="inline-block px-3 py-1 rounded bg-amber-900/40 text-amber-300 text-xs border border-amber-700/40">
+                            情境填空
+                        </div>
+                        <!-- 粵語朗讀按鈕 -->
+                        <button id="btn-speech-quiz" onclick="speakCurrentQuestion()" class="ancient-btn px-3 py-1 rounded-full text-xs flex items-center gap-1.5 border border-amber-500/80 bg-amber-900/60">
+                            <i class="fa-solid fa-volume-high text-amber-300"></i>
+                            <span>粵語發音</span>
+                        </button>
+                    </div>
+                    <div id="quiz-question-text" class="text-lg md:text-xl text-stone-100 font-medium leading-relaxed bg-stone-900/60 p-4 rounded-lg border border-stone-700">
+                        題目載入中...
+                    </div>
+                </div>
+
+                <!-- 選項區 -->
+                <div id="quiz-options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                    <!-- 選項將動態渲染 -->
+                </div>
+
+                <!-- 解析與反饋彈窗區 -->
+                <div id="quiz-feedback" class="hidden p-4 rounded-lg border mb-4 text-sm leading-relaxed"></div>
+
+                <!-- 底部按鈕區 -->
+                <div class="flex justify-between items-center pt-2">
+                    <button onclick="returnToMap()" class="px-4 py-2 text-xs text-stone-400 hover:text-stone-200">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> 返回地圖
+                    </button>
+                    <button id="btn-next-question" onclick="nextQuestion()" class="ancient-btn px-6 py-2 rounded text-sm font-bold hidden">
+                        下一題 <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 畫面 4: 第四章 終極試煉 PK 戰鬥介面 -->
+        <div id="view-boss-battle" class="w-full max-w-4xl hidden">
+            <div class="ancient-card p-4 md:p-6 rounded-lg relative overflow-hidden">
+                <!-- 戰鬥頂部：血條與倒數 -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- 玩家資訊 -->
+                    <div class="bg-stone-900/70 p-3 rounded border border-amber-700/50 flex items-center gap-3">
+                        <div class="w-12 h-16 rounded border border-amber-400 overflow-hidden bg-stone-800 flex-shrink-0">
+                            <img id="boss-player-avatar" src="" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between text-xs font-bold text-amber-300 mb-1">
+                                <span id="boss-player-name">少俠</span>
+                                <span id="boss-player-hp-text">100 / 100</span>
+                            </div>
+                            <div class="w-full bg-stone-800 h-3 rounded-full overflow-hidden border border-stone-600">
+                                <div id="boss-player-hp-bar" class="hp-bar-inner bg-gradient-to-r from-emerald-600 to-green-400 h-full w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 墨魔妖王資訊 -->
+                    <div class="bg-stone-900/70 p-3 rounded border border-red-800/50 flex items-center gap-3">
+                        <div class="flex-grow text-right">
+                            <div class="flex justify-between text-xs font-bold text-red-400 mb-1">
+                                <span id="boss-enemy-hp-text">200 / 200</span>
+                                <span>墨魔妖王</span>
+                            </div>
+                            <div class="w-full bg-stone-800 h-3 rounded-full overflow-hidden border border-stone-600">
+                                <div id="boss-enemy-hp-bar" class="hp-bar-inner bg-gradient-to-r from-red-600 to-rose-400 h-full w-full"></div>
+                            </div>
+                        </div>
+                        <div class="w-12 h-16 rounded border border-red-500 bg-stone-800 flex items-center justify-center text-red-500 text-3xl font-bold flex-shrink-0">
+                            <i class="fa-solid fa-dragon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 戰鬥畫面區域 (動畫展現) -->
+                <div class="relative bg-stone-950/80 rounded-lg border border-stone-800 h-52 md:h-64 flex justify-between items-center px-8 mb-4 overflow-hidden">
+                    <!-- 玩家角色動態區域 -->
+                    <div id="boss-player-sprite" class="flex flex-col items-center transition-all duration-300 h-full justify-end pb-2">
+                        <img id="boss-player-img" src="" onerror="handleImageError(this, gameState.role)" class="h-40 md:h-56 object-contain filter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">
+                    </div>
+
+                    <!-- 戰鬥計時器 -->
+                    <div class="text-center z-10">
+                        <div class="text-xs text-amber-500 font-bold mb-1">對決剩餘時間</div>
+                        <div id="boss-timer" class="text-3xl md:text-4xl font-bold text-red-500 animate-pulse">20</div>
+                    </div>
+
+                    <!-- 妖怪區域 -->
+                    <div id="boss-enemy-sprite" class="flex flex-col items-center transition-all duration-300">
+                        <div class="text-6xl md:text-8xl text-red-700 filter drop-shadow-[0_0_15px_rgba(220,38,38,0.6)]">
+                            <i class="fa-solid fa-dragon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 戰鬥題目卡片 -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-amber-400 font-bold"><i class="fa-solid fa-bolt mr-1"></i> 降妖題目</span>
+                        <button id="btn-speech-boss" onclick="speakBossQuestion()" class="ancient-btn px-3 py-1 rounded-full text-xs flex items-center gap-1 border border-amber-500/80 bg-amber-900/60">
+                            <i class="fa-solid fa-volume-high text-amber-300"></i>
+                            <span>粵語發音</span>
+                        </button>
+                    </div>
+                    <div id="boss-question-text" class="text-base md:text-lg font-medium bg-stone-900/90 p-3.5 rounded border border-amber-700/60 text-stone-100">
+                        題目載入中...
+                    </div>
+                    <div id="boss-options-container" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                        <!-- 選項按鈕 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="w-full text-center py-3 text-xs text-stone-500 border-t border-stone-800/80 bg-stone-950/60 z-20">
+        詞語大冒險 &copy; 2026
+    </footer>
+
+    <!-- 彈窗：教師後台 Modal -->
+    <div id="modal-teacher" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="ancient-card max-w-3xl w-full p-6 rounded-lg max-h-[90vh] flex flex-col justify-between border-2 border-amber-600">
+            <!-- 驗證密碼介面 -->
+            <div id="teacher-login-sec" class="space-y-4 text-center py-8">
+                <h3 class="text-2xl font-calligraphy text-amber-400 font-bold">教師管理後台驗證</h3>
+                <p class="text-xs text-stone-400">請輸入教師密碼</p>
+                <div class="max-w-xs mx-auto space-y-3">
+                    <input type="password" id="teacher-pwd-input" placeholder="請輸入密碼" 
+                           onkeydown="if(event.key==='Enter') verifyTeacherPwd()"
+                           class="w-full px-4 py-2 bg-stone-900 border border-amber-700 text-amber-200 text-center rounded focus:outline-none">
+                    <button onclick="verifyTeacherPwd()" class="ancient-btn w-full py-2 text-sm font-bold rounded">
+                        驗證登入
+                    </button>
+                    <p id="teacher-pwd-err" class="text-xs text-red-400 hidden">密碼錯誤，請重新輸入！</p>
+                </div>
+            </div>
+
+            <!-- 後台數據內容區 -->
+            <div id="teacher-dashboard-sec" class="hidden space-y-4 flex-grow overflow-hidden flex flex-col">
+                <div class="flex justify-between items-center border-b border-amber-700/50 pb-3">
+                    <h3 class="text-xl font-calligraphy text-amber-400 font-bold">學生學習數據與成績紀錄</h3>
+                    <div class="flex gap-2">
+                        <button onclick="renderTeacherDashboard()" class="ancient-btn px-3 py-1 text-xs rounded border border-amber-500/70">
+                            <i class="fa-solid fa-rotate mr-1"></i> 即時刷新
+                        </button>
+                        <button onclick="exportToCSV()" class="ancient-btn px-3 py-1 text-xs rounded border border-emerald-600 bg-emerald-950">
+                            <i class="fa-solid fa-file-csv mr-1"></i> 導出 CSV
+                        </button>
+                        <button onclick="clearAllData()" class="px-3 py-1 text-xs rounded border border-red-700 bg-red-950 text-red-300 hover:bg-red-900">
+                            清空紀錄
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 全班即時統計摘要卡片 -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                    <div class="bg-stone-900/90 border border-amber-700/40 rounded p-2.5 text-center">
+                        <div class="text-[11px] text-stone-400">已登錄學生</div>
+                        <div id="stat-total-students" class="text-lg font-bold text-amber-300">0 人</div>
+                    </div>
+                    <div class="bg-stone-900/90 border border-amber-700/40 rounded p-2.5 text-center">
+                        <div class="text-[11px] text-stone-400">平均得分</div>
+                        <div id="stat-avg-score" class="text-lg font-bold text-emerald-400">0 分</div>
+                    </div>
+                    <div class="bg-stone-900/90 border border-amber-700/40 rounded p-2.5 text-center">
+                        <div class="text-[11px] text-stone-400">平均答對率</div>
+                        <div id="stat-avg-accuracy" class="text-lg font-bold text-sky-400">0%</div>
+                    </div>
+                    <div class="bg-stone-900/90 border border-amber-700/40 rounded p-2.5 text-center">
+                        <div class="text-[11px] text-stone-400">高頻難點詞語</div>
+                        <div id="stat-top-wrong" class="text-lg font-bold text-rose-400">暫無</div>
+                    </div>
+                </div>
+
+                <!-- 數據表格 -->
+                <div class="flex-grow overflow-y-auto border border-stone-800 rounded">
+                    <table class="w-full text-xs text-left text-stone-300">
+                        <thead class="bg-stone-900 text-amber-400 border-b border-stone-700 sticky top-0">
+                            <tr>
+                                <th class="p-2.5">學生姓名</th>
+                                <th class="p-2.5">即時學習進度</th>
+                                <th class="p-2.5">總得分</th>
+                                <th class="p-2.5">答對 / 總題數 (答對率)</th>
+                                <th class="p-2.5">錯題明細</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-table-body" class="divide-y divide-stone-800 bg-stone-950/50">
+                            <!-- 動態填入學生紀錄 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-stone-800 flex justify-end">
+                <button onclick="closeTeacherModal()" class="px-4 py-1.5 text-xs bg-stone-800 text-stone-300 rounded hover:bg-stone-700">
+                    關閉後台
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自訂古風訊息提示彈窗 (取代原生 alert/confirm) -->
+    <div id="modal-custom-msg" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="scroll-container max-w-md w-full p-6 rounded-sm text-center space-y-4">
+            <h3 id="custom-msg-title" class="text-2xl font-calligraphy text-stone-900 font-bold">仙途提示</h3>
+            <p id="custom-msg-body" class="text-stone-800 text-base leading-relaxed font-medium"></p>
+            <div id="custom-msg-actions" class="flex justify-center gap-3 pt-2">
+                <button id="custom-msg-cancel" class="hidden px-5 py-2 rounded border border-stone-500 bg-stone-200 text-stone-800 font-bold text-sm hover:bg-stone-300">
+                    取消
+                </button>
+                <button id="custom-msg-ok" class="ancient-btn ancient-btn-gold px-6 py-2 rounded text-sm font-bold">
+                    確定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 遊戲核心邏輯 -->
+    <script>
+        /* ================= Firebase 雲端資料庫連線設定 ================= */
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9syNHhR20oqC7g5S96ES3wLF0v3E8UCs",
+            authDomain: "chinese-47a82.firebaseapp.com",
+            databaseURL: "https://chinese-47a82-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "chinese-47a82",
+            storageBucket: "chinese-47a82.firebasestorage.app",
+            messagingSenderId: "720754972721",
+            appId: "1:720754972721:web:a96909708942424351dd10",
+            measurementId: "G-TENXFWNYCN"
+        };
+
+        let db = null;
+        let cloudStudentCache = {};
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.database();
+        } catch (e) {
+            console.warn("Firebase 初始化失敗，將暫時使用本機儲存：", e);
+        }
+
+        // 統一處理 Firebase 鍵值安全字元（避免學生姓名含 . # $ [ ] / 導致寫入錯誤）
+        function getSafeStudentKey(name) {
+            return encodeURIComponent(name.trim()).replace(/\./g, '%2E');
+        }
+
+        function applyStudentRecordToState(rec) {
+            if (!rec) return;
+            gameState.score = rec.score || 0;
+            gameState.totalAnswered = rec.totalAnswered || 0;
+            gameState.correctAnswered = rec.correctAnswered || 0;
+            gameState.wrongRecords = Array.isArray(rec.wrongRecords) ? rec.wrongRecords : [];
+            gameState.statusText = rec.statusText || "已登入（準備開始）";
+            if (Array.isArray(rec.completedChapters)) {
+                gameState.completedChapters = rec.completedChapters;
+            }
+        }
+
+        /* ================= 0. 古風自訂彈窗與 Web Audio 音效系統 ================= */
+        function showCustomMessage(message, title = "仙途提示", onConfirm = null) {
+            const modal = document.getElementById('modal-custom-msg');
+            document.getElementById('custom-msg-title').textContent = title;
+            document.getElementById('custom-msg-body').textContent = message;
+            const cancelBtn = document.getElementById('custom-msg-cancel');
+            const okBtn = document.getElementById('custom-msg-ok');
+
+            cancelBtn.classList.add('hidden');
+            okBtn.onclick = () => {
+                modal.classList.add('hidden');
+                if (typeof onConfirm === 'function') onConfirm();
+            };
+            modal.classList.remove('hidden');
+        }
+
+        function showCustomConfirm(message, title = "確認操作", onConfirm = null) {
+            const modal = document.getElementById('modal-custom-msg');
+            document.getElementById('custom-msg-title').textContent = title;
+            document.getElementById('custom-msg-body').textContent = message;
+            const cancelBtn = document.getElementById('custom-msg-cancel');
+            const okBtn = document.getElementById('custom-msg-ok');
+
+            cancelBtn.classList.remove('hidden');
+            cancelBtn.onclick = () => modal.classList.add('hidden');
+            okBtn.onclick = () => {
+                modal.classList.add('hidden');
+                if (typeof onConfirm === 'function') onConfirm();
+            };
+            modal.classList.remove('hidden');
+        }
+
+        // Web Audio 古風音效引擎
+        const sfx = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+            playTone(freq, type, duration, vol = 0.15) {
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {}
+            },
+            playClick() { this.playTone(523.25, 'sine', 0.12, 0.1); },
+            playCorrect() {
+                this.playTone(523.25, 'triangle', 0.18, 0.16);
+                setTimeout(() => this.playTone(659.25, 'triangle', 0.18, 0.16), 90);
+                setTimeout(() => this.playTone(783.99, 'triangle', 0.3, 0.18), 180);
+            },
+            playWrong() {
+                this.playTone(220, 'sawtooth', 0.25, 0.14);
+                setTimeout(() => this.playTone(185, 'sawtooth', 0.3, 0.14), 120);
+            },
+            playAttack() {
+                this.playTone(150, 'square', 0.15, 0.2);
+                setTimeout(() => this.playTone(320, 'sawtooth', 0.2, 0.18), 60);
+            }
+        };
+
+        /* ================= 0.5 備援 SVG 水墨風圖片生成器 ================= */
+        const FALLBACK_SVG_AVATARS = {
+            male: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260"><defs><radialGradient id="bgM" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="%233a2a1a"/><stop offset="100%" stop-color="%23120d09"/></radialGradient></defs><rect x="4" y="4" width="192" height="252" rx="8" fill="url(%23bgM)" stroke="%23d4af37" stroke-width="4"/><path d="M35,215 Q100,90 165,215 Z" fill="%232b3a42" opacity="0.65"/><circle cx="100" cy="92" r="30" fill="%23f5e6d3"/><path d="M70,86 C70,55 130,55 130,86 C130,68 70,68 70,86 Z" fill="%231a1a1a"/><path d="M55,220 Q100,145 145,220 Z" fill="%2378281f"/><path d="M125,155 L172,125 L160,180 Z" fill="%23d4af37" opacity="0.92"/><text x="136" y="156" font-family="serif" font-size="14" fill="%231a1a1a" font-weight="bold">扇</text><text x="100" y="242" font-family="sans-serif" font-size="15" fill="%23f7e7c4" text-anchor="middle" font-weight="bold">持扇俠士</text></svg>`,
+            female: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260"><defs><radialGradient id="bgF" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="%233d222e"/><stop offset="100%" stop-color="%2312090f"/></radialGradient></defs><rect x="4" y="4" width="192" height="252" rx="8" fill="url(%23bgF)" stroke="%23d4af37" stroke-width="4"/><path d="M35,215 Q100,80 165,215 Z" fill="%234a2e39" opacity="0.65"/><circle cx="100" cy="92" r="28" fill="%23fcebe6"/><path d="M68,88 C68,50 132,50 132,88 C132,62 68,62 68,88 Z" fill="%23111"/><circle cx="130" cy="68" r="6" fill="%23d4af37"/><path d="M50,220 Q100,140 150,220 Z" fill="%238c354d"/><path d="M110,130 Q128,150 122,188 Q110,194 104,162 Z" fill="%23c49a45"/><line x1="110" y1="136" x2="120" y2="185" stroke="%23fff" stroke-width="1.5"/><text x="100" y="242" font-family="sans-serif" font-size="15" fill="%23f7e7c4" text-anchor="middle" font-weight="bold">持琵琶仙子</text></svg>`
+        };
+
+        function handleImageError(imgEl, roleKey) {
+            if (!imgEl) return;
+            const thumbUrl = THUMBNAIL_AVATARS[roleKey];
+            const fallbackSrc = FALLBACK_SVG_AVATARS[roleKey] || FALLBACK_SVG_AVATARS['male'];
+            if (!imgEl.dataset.triedThumb && thumbUrl) {
+                imgEl.dataset.triedThumb = 'true';
+                imgEl.src = thumbUrl;
+            } else if (imgEl.src !== fallbackSrc) {
+                imgEl.src = fallbackSrc;
+            }
+        }
+
+        /* ================= 1. 粵語 Text-to-Speech 語音發音核心 ================= */
+        let currentUtterance = null;
+
+        function speakText(text, btnEl = null) {
+            if (!('speechSynthesis' in window)) {
+                showCustomMessage('您的瀏覽器暫不支援語音合成發音。', '發音提示');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            if (btnEl && btnEl.classList.contains('speech-active')) {
+                btnEl.classList.remove('speech-active');
+                return;
+            }
+
+            const cleanText = text.replace(/______/g, '空白');
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+
+            const voices = window.speechSynthesis.getVoices();
+            const cantoneseVoice = voices.find(v => v.lang.includes('zh-HK') || v.lang.includes('yue') || v.lang.includes('zh-yue'));
+            
+            if (cantoneseVoice) {
+                utterance.voice = cantoneseVoice;
+                utterance.lang = cantoneseVoice.lang;
+            } else {
+                utterance.lang = 'zh-HK';
+            }
+
+            utterance.rate = 0.9;
+
+            if (btnEl) {
+                btnEl.classList.add('speech-active');
+                utterance.onend = () => btnEl.classList.remove('speech-active');
+                utterance.onerror = () => btnEl.classList.remove('speech-active');
+            }
+
+            currentUtterance = utterance;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakCurrentQuestion() {
+            const text = document.getElementById('quiz-question-text').textContent;
+            const btn = document.getElementById('btn-speech-quiz');
+            speakText(text, btn);
+        }
+
+        function speakBossQuestion() {
+            const text = document.getElementById('boss-question-text').textContent;
+            const btn = document.getElementById('btn-speech-boss');
+            speakText(text, btn);
+        }
+
+        // 預載 Voices 列表 (部分 Chrome 瀏覽器需異步載入)
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+
+        /* ================= 2. 遊戲資料庫與狀態控制 ================= */
+        const AVATARS = {
+            male: "https://drive.google.com/uc?export=view&id=1pWMoqiMLkHN1qR5kQQdcgWOENYnj2Y6j",
+            female: "https://drive.google.com/uc?export=view&id=1KxyeO3eweakOu1Q8piq2pvmKcNIEV_Xl"
+        };
+
+        const THUMBNAIL_AVATARS = {
+            male: "https://drive.google.com/thumbnail?id=1pWMoqiMLkHN1qR5kQQdcgWOENYnj2Y6j&sz=w1000",
+            female: "https://drive.google.com/thumbnail?id=1KxyeO3eweakOu1Q8piq2pvmKcNIEV_Xl&sz=w1000"
+        };
+
+        const VOCABULARY = ["燃料", "必需品", "崗位", "尋求", "維修", "發展", "積極", "唯一", "優質"];
+
+        const CHAPTER_NAMES = {
+            1: "第1章（名詞）",
+            2: "第2章（動詞）",
+            3: "第3章（形容詞）",
+            4: "第4章（終極試煉）"
+        };
+
+        let gameState = {
+            studentName: "",
+            role: "male",
+            currentChapter: 1,
+            completedChapters: [],
+            statusText: "剛創角（尚未答題）",
+            score: 0,
+            totalAnswered: 0,
+            correctAnswered: 0,
+            wrongRecords: []
+        };
+
+        const QUIZ_DATABASE = {
+            1: [
+                {
+                    id: "c1_def_1",
+                    type: "名詞解釋 (M5)",
+                    question: "請選出解釋為「可供燃燒的物質。」的詞語：",
+                    options: ["燃料", "必需品", "崗位", "維修"],
+                    answer: "燃料",
+                    explanation: "根據 M5-M6，「燃料」解作：可供燃燒的物質。"
+                },
+                {
+                    id: "c1_def_2",
+                    type: "名詞解釋 (M5)",
+                    question: "請選出解釋為「生活上不可缺少的物品。」的詞語：",
+                    options: ["必需品", "燃料", "崗位", "優質"],
+                    answer: "必需品",
+                    explanation: "根據 M5，「必需品」解作：生活上不可缺少的物品。"
+                },
+                {
+                    id: "c1_def_3",
+                    type: "名詞解釋 (M5)",
+                    question: "請選出解釋為「職責、本分。」的詞語：",
+                    options: ["崗位", "必需品", "燃料", "發展"],
+                    answer: "崗位",
+                    explanation: "根據 M5，「崗位」解作：職責、本分。"
+                },
+                {
+                    id: "c1_fill_1",
+                    type: "填一填 (M5)",
+                    question: "煤、炭、木材等都是可供燃燒的______。",
+                    options: ["燃料", "必需品", "崗位", "尋求"],
+                    answer: "燃料",
+                    explanation: "完整句子（M5）：煤、炭、木材等都是可供燃燒的燃料。"
+                },
+                {
+                    id: "c1_fill_2",
+                    type: "填一填 (M6)",
+                    question: "書包和文具是上學的______。",
+                    options: ["必需品", "燃料", "崗位", "唯一"],
+                    answer: "必需品",
+                    explanation: "完整句子（M6）：書包和文具是上學的必需品。"
+                },
+                {
+                    id: "c1_fill_3",
+                    type: "填一填 (M6)",
+                    question: "我們要努力不懈，堅守工作______。",
+                    options: ["崗位", "必需品", "燃料", "積極"],
+                    answer: "崗位",
+                    explanation: "完整句子（M6）：我們要努力不懈，堅守工作崗位。"
+                }
+            ],
+            2: [
+                {
+                    id: "c2_def_1",
+                    type: "動詞解釋 (M7)",
+                    question: "請選出解釋為「找尋探求。」的詞語：",
+                    options: ["尋求", "維修", "發展", "崗位"],
+                    answer: "尋求",
+                    explanation: "根據 M7，「尋求」解作：找尋探求。"
+                },
+                {
+                    id: "c2_def_2",
+                    type: "動詞解釋 (M7)",
+                    question: "請選出解釋為「維護與修理。」的詞語：",
+                    options: ["維修", "尋求", "發展", "燃料"],
+                    answer: "維修",
+                    explanation: "根據 M7，「維修」解作：維護與修理。"
+                },
+                {
+                    id: "c2_def_3",
+                    type: "動詞解釋 (M7)",
+                    question: "請選出解釋為「開展，逐漸進展。」的詞語：",
+                    options: ["發展", "維修", "尋求", "優質"],
+                    answer: "發展",
+                    explanation: "根據 M7，「發展」解作：開展，逐漸進展。"
+                },
+                {
+                    id: "c2_fill_1",
+                    type: "填一填 (M7)",
+                    question: "遇到困難，我們要______幫助。",
+                    options: ["尋求", "維修", "發展", "必需品"],
+                    answer: "尋求",
+                    explanation: "完整句子（M7）：遇到困難，我們要尋求幫助。"
+                },
+                {
+                    id: "c2_fill_2",
+                    type: "填一填 (M8)",
+                    question: "升降機正在進行______，所以暫停服務。",
+                    options: ["維修", "發展", "尋求", "唯一"],
+                    answer: "維修",
+                    explanation: "完整句子（M8）：升降機正在進行維修，所以暫停服務。"
+                },
+                {
+                    id: "c2_fill_3",
+                    type: "填一填 (M8)",
+                    question: "我們應該盡力______自己的潛能。",
+                    options: ["發展", "維修", "尋求", "積極"],
+                    answer: "發展",
+                    explanation: "完整句子（M8）：我們應該盡力發展自己的潛能。"
+                }
+            ],
+            3: [
+                {
+                    id: "c3_def_1",
+                    type: "形容詞解釋 (M9)",
+                    question: "請選出解釋為「意願強烈、主動力行。」的詞語：",
+                    options: ["積極", "唯一", "優質", "發展"],
+                    answer: "積極",
+                    explanation: "根據 M9，「積極」解作：意願強烈、主動力行。"
+                },
+                {
+                    id: "c3_def_2",
+                    type: "形容詞解釋 (M9)",
+                    question: "請選出解釋為「獨一無二。」的詞語：",
+                    options: ["唯一", "積極", "優質", "崗位"],
+                    answer: "唯一",
+                    explanation: "根據 M9，「唯一」解作：獨一無二。"
+                },
+                {
+                    id: "c3_def_3",
+                    type: "形容詞解釋 (M10-M12)",
+                    question: "請選出解釋為「品質精良。」的詞語：",
+                    options: ["優質", "唯一", "積極", "燃料"],
+                    answer: "優質",
+                    explanation: "根據 M9，「優質」解作：品質精良。"
+                },
+                {
+                    id: "c3_fill_1",
+                    type: "填一填 (M9)",
+                    question: "他______參與義工服務。",
+                    options: ["積極", "唯一", "優質", "尋求"],
+                    answer: "積極",
+                    explanation: "完整句子（M9）：他積極參與義工服務。"
+                },
+                {
+                    id: "c3_fill_2",
+                    type: "填一填 (M10)",
+                    question: "小英是本班______得到獎學金的畢業生。",
+                    options: ["唯一", "積極", "優質", "維修"],
+                    answer: "唯一",
+                    explanation: "完整句子（M10）：小英是本班唯一得到獎學金的畢業生。"
+                },
+                {
+                    id: "c3_fill_3",
+                    type: "填一填 (M10)",
+                    question: "店舖應為顧客提供______服務。",
+                    options: ["優質", "唯一", "積極", "必需品"],
+                    answer: "優質",
+                    explanation: "完整句子（M10）：店舖應為顧客提供優質服務。"
+                }
+            ],
+            4: [
+                {
+                    id: "c4_1",
+                    question: "小息時，風紀緊守______，看管秩序。（M11）",
+                    options: ["崗位", "燃料", "必需品", "尋求"],
+                    answer: "崗位"
+                },
+                {
+                    id: "c4_2",
+                    question: "露營時，我們以木炭作______來烹煮食物。（M11）",
+                    options: ["燃料", "必需品", "崗位", "尋求"],
+                    answer: "燃料"
+                },
+                {
+                    id: "c4_3",
+                    question: "醬、米、油、鹽是我們日常生活的______，缺一不可。（M11）",
+                    options: ["必需品", "燃料", "崗位", "尋求"],
+                    answer: "必需品"
+                },
+                {
+                    id: "c4_4",
+                    question: "我不懂做這條數學題，於是便向老師______幫助。（M11）",
+                    options: ["尋求", "燃料", "必需品", "崗位"],
+                    answer: "尋求"
+                },
+                {
+                    id: "c4_5",
+                    question: "這個農場提供______的農作物，供顧客食用。（M12）",
+                    options: ["優質", "維修", "發展", "積極"],
+                    answer: "優質"
+                },
+                {
+                    id: "c4_6",
+                    question: "家裏的煤氣爐損壞了，爸爸找煤氣公司到我家______。（M12）",
+                    options: ["維修", "發展", "積極", "唯一"],
+                    answer: "維修"
+                },
+                {
+                    id: "c4_7",
+                    question: "風能，是一種可持續______的能源供應方式。（M12）",
+                    options: ["發展", "維修", "唯一", "優質"],
+                    answer: "發展"
+                },
+                {
+                    id: "c4_8",
+                    question: "渡輪是前往長洲的______交通工具。（M12）",
+                    options: ["唯一", "積極", "優質", "維修"],
+                    answer: "唯一"
+                },
+                {
+                    id: "c4_9",
+                    question: "小基______服務老師和同學，得到學校的嘉許。（M12）",
+                    options: ["積極", "唯一", "優質", "發展"],
+                    answer: "積極"
+                }
+            ]
+        };
+
+        let quizState = { currentQuestionIdx: 0, questions: [], chapterScore: 0 };
+        let bossState = { playerHp: 100, playerMaxHp: 100, enemyHp: 250, enemyMaxHp: 250, timer: 20, timerInterval: null, currentQIdx: 0, questions: [] };
+
+        /* ================= 3. 畫面切換與創角登入系統 ================= */
+        function showView(viewId) {
+            const views = ['view-character-creation', 'view-map', 'view-quiz', 'view-boss-battle'];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === viewId) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                }
+            });
+        }
+
+        function selectCharacter(role) {
+            sfx.playClick();
+            gameState.role = role;
+            const maleCard = document.getElementById('card-role-male');
+            const femaleCard = document.getElementById('card-role-female');
+
+            if (role === 'male') {
+                maleCard.classList.remove('border-stone-700', 'bg-stone-900/40');
+                maleCard.classList.add('border-amber-400', 'bg-amber-950/40');
+                femaleCard.classList.remove('border-amber-400', 'bg-amber-950/40');
+                femaleCard.classList.add('border-stone-700', 'bg-stone-900/40');
+            } else {
+                femaleCard.classList.remove('border-stone-700', 'bg-stone-900/40');
+                femaleCard.classList.add('border-amber-400', 'bg-amber-950/40');
+                maleCard.classList.remove('border-amber-400', 'bg-amber-950/40');
+                maleCard.classList.add('border-stone-700', 'bg-stone-900/40');
+            }
+        }
+
+        function startGameJourney() {
+            sfx.playClick();
+            const nameInput = document.getElementById('input-student-name');
+            const name = nameInput ? nameInput.value.trim() : '';
+
+            if (!name) {
+                showCustomMessage('請先輸入姓名，方可踏入求學之路！', '尚未留名', () => {
+                    if (nameInput) nameInput.focus();
+                });
+                return;
+            }
+
+            gameState.studentName = name;
+
+            // 先重置狀態，並嘗試從雲端（或本機快取）載入該學生舊紀錄
+            gameState.score = 0;
+            gameState.totalAnswered = 0;
+            gameState.correctAnswered = 0;
+            gameState.wrongRecords = [];
+            gameState.completedChapters = [];
+            gameState.statusText = "剛創角（尚未答題）";
+
+            const localRecords = JSON.parse(localStorage.getItem('guofeng_student_records') || '{}');
+            if (localRecords[name]) {
+                applyStudentRecordToState(localRecords[name]);
+            }
+
+            // 更新頂部導覽列頭像與名稱
+            const headerAvatar = document.getElementById('header-avatar');
+            headerAvatar.dataset.triedThumb = '';
+            headerAvatar.src = AVATARS[gameState.role];
+            document.getElementById('header-role-badge').textContent = gameState.role === 'male' ? '俠士' : '俠士';
+            document.getElementById('header-avatar-container').classList.remove('hidden');
+
+            document.getElementById('header-username').textContent = gameState.studentName;
+            document.getElementById('header-user-info').classList.remove('hidden');
+
+            showView('view-map');
+            updateMapButtons();
+
+            // 檢查雲端是否已有該學生更完整的舊進度，若有則自動合併同步
+            if (db) {
+                const safeKey = getSafeStudentKey(name);
+                db.ref('students/' + safeKey).once('value').then(snapshot => {
+                    const cloudRec = snapshot.val();
+                    if (cloudRec && (cloudRec.totalAnswered || 0) > gameState.totalAnswered) {
+                        applyStudentRecordToState(cloudRec);
+                        updateMapButtons();
+                        saveStudentProgress();
+                    } else {
+                        saveStudentProgress();
+                    }
+                }).catch(() => saveStudentProgress());
+            } else {
+                saveStudentProgress();
+            }
+        }
+
+        /* ================= 4. 地圖按鈕狀態更新 ================= */
+        function updateMapButtons() {
+            [1, 2, 3, 4].forEach(ch => {
+                const badge = document.getElementById(`badge-ch${ch}`);
+                const btn = document.getElementById(`btn-ch${ch}`);
+                const isUnlocked = ch === 1 || gameState.completedChapters.includes(ch - 1);
+                const isCompleted = gameState.completedChapters.includes(ch);
+
+                if (isCompleted) {
+                    badge.textContent = "已通關";
+                    badge.className = "text-xs text-emerald-400 font-bold";
+                } else if (isUnlocked) {
+                    badge.textContent = "可試煉";
+                    badge.className = "text-xs text-amber-400 font-bold";
+                } else {
+                    badge.textContent = "未解鎖";
+                    badge.className = "text-xs text-stone-500";
+                }
+                if (btn) btn.disabled = !isUnlocked;
+            });
+        }
+
+        function returnToMap() {
+            if (bossState.timerInterval) clearInterval(bossState.timerInterval);
+            if (gameState.studentName) {
+                const maxCompleted = gameState.completedChapters.length > 0 ? Math.max(...gameState.completedChapters) : 0;
+                if (maxCompleted > 0 && !gameState.statusText.startsWith("已完成")) {
+                    gameState.statusText = `已完成${CHAPTER_NAMES[maxCompleted]}（地圖待機）`;
+                }
+                saveStudentProgress();
+            }
+            showView('view-map');
+            updateMapButtons();
+        }
+
+        // 隨機打亂選項順序（Fisher-Yates 洗牌演算法）
+        function getShuffledOptions(options) {
+            const arr = [...options];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        /* ================= 5. 一般關卡答題邏輯 (1-3 章) ================= */
+        function startChapter(chNum) {
+            gameState.currentChapter = chNum;
+            if (chNum === 4) {
+                gameState.statusText = `進行中：${CHAPTER_NAMES[4]}`;
+                saveStudentProgress();
+                startBossBattle();
+                return;
+            }
+
+            quizState.currentQuestionIdx = 0;
+            quizState.questions = [...QUIZ_DATABASE[chNum]];
+            quizState.chapterScore = 0;
+
+            gameState.statusText = `進行中：${CHAPTER_NAMES[chNum]} 第 1/${quizState.questions.length} 題`;
+            saveStudentProgress();
+
+            showView('view-quiz');
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const q = quizState.questions[quizState.currentQuestionIdx];
+            const chTitles = { 1: "第一章：名詞", 2: "第二章：動詞", 3: "第三章：形容詞" };
+
+            document.getElementById('quiz-chapter-title').textContent = chTitles[gameState.currentChapter];
+            document.getElementById('quiz-progress').textContent = `(${quizState.currentQuestionIdx + 1} / ${quizState.questions.length})`;
+            document.getElementById('quiz-score').textContent = gameState.score;
+            document.getElementById('quiz-question-type').textContent = q.type || "詞義運用";
+            document.getElementById('quiz-question-text').textContent = q.question;
+
+            const btnSpeech = document.getElementById('btn-speech-quiz');
+            if (btnSpeech) btnSpeech.classList.remove('speech-active');
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('btn-next-question').classList.add('hidden');
+
+            const optsContainer = document.getElementById('quiz-options-container');
+            optsContainer.innerHTML = '';
+
+            const shuffledQuizOpts = getShuffledOptions(q.options);
+            shuffledQuizOpts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'ancient-btn px-4 py-3 rounded text-left font-medium text-stone-100 flex items-center justify-between transition-all border border-stone-600 hover:border-amber-400';
+                btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt}</span> <button type="button" onclick="event.stopPropagation(); speakText('${opt}');" class="p-1 hover:text-amber-300 text-stone-400"><i class="fa-solid fa-volume-low text-xs"></i></button>`;
+                btn.onclick = () => checkQuizAnswer(opt, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedOpt, btnElement) {
+            const q = quizState.questions[quizState.currentQuestionIdx];
+            const optsBtns = document.querySelectorAll('#quiz-options-container button');
+            optsBtns.forEach(b => b.disabled = true);
+
+            gameState.totalAnswered++;
+            const isCorrect = selectedOpt === q.answer;
+            const feedbackEl = document.getElementById('quiz-feedback');
+            feedbackEl.classList.remove('hidden');
+
+            if (isCorrect) {
+                sfx.playCorrect();
+                gameState.score += 20;
+                gameState.correctAnswered++;
+                btnElement.classList.add('bg-emerald-900/80', 'border-emerald-400', 'text-emerald-200');
+
+                feedbackEl.className = "p-4 rounded-lg border border-emerald-600/60 bg-emerald-950/40 text-emerald-200 mb-4 text-sm";
+                feedbackEl.innerHTML = `<div class="font-bold mb-1"><i class="fa-solid fa-circle-check mr-1"></i> 回答正確！</div><div>${q.explanation || ''}</div>`;
+            } else {
+                sfx.playWrong();
+                btnElement.classList.add('bg-red-900/80', 'border-red-400', 'text-red-200');
+
+                optsBtns.forEach(b => {
+                    if (b.textContent.includes(q.answer)) b.classList.add('border-emerald-400', 'bg-emerald-950/40');
+                });
+
+                gameState.wrongRecords.push({
+                    chapter: CHAPTER_NAMES[gameState.currentChapter],
+                    question: q.question,
+                    wrongAns: selectedOpt,
+                    correctAns: q.answer,
+                    time: new Date().toLocaleTimeString()
+                });
+
+                feedbackEl.className = "p-4 rounded-lg border border-red-600/60 bg-red-950/40 text-red-200 mb-4 text-sm";
+                feedbackEl.innerHTML = `<div class="font-bold mb-1"><i class="fa-solid fa-circle-xmark mr-1"></i> 回答錯誤！</div><div>正確答案是【${q.answer}】。${q.explanation || ''}</div>`;
+            }
+
+            // 即時更新當前答題進度狀態（即使只答一題也能在教師後台看到）
+            gameState.statusText = `進行中：${CHAPTER_NAMES[gameState.currentChapter]}（已答 ${quizState.currentQuestionIdx + 1}/${quizState.questions.length} 題）`;
+
+            document.getElementById('quiz-score').textContent = gameState.score;
+            document.getElementById('btn-next-question').classList.remove('hidden');
+            saveStudentProgress();
+        }
+
+        function nextQuestion() {
+            sfx.playClick();
+            quizState.currentQuestionIdx++;
+            if (quizState.currentQuestionIdx < quizState.questions.length) {
+                renderQuizQuestion();
+            } else {
+                if (!gameState.completedChapters.includes(gameState.currentChapter)) {
+                    gameState.completedChapters.push(gameState.currentChapter);
+                }
+                const chLabel = CHAPTER_NAMES[gameState.currentChapter];
+                gameState.statusText = `已完成${chLabel}`;
+                saveStudentProgress();
+                showCustomMessage(`恭喜通關「${chLabel}」試煉！目前總得分：${gameState.score}（成績已同步至教師後台）`, '試煉通關', () => {
+                    returnToMap();
+                });
+            }
+        }
+
+        /* ================= 6. 第四章 終極對決 (Boss PK 戰鬥) ================= */
+        function startBossBattle() {
+            bossState.playerHp = 100;
+            bossState.enemyHp = 250;
+            bossState.currentQIdx = 0;
+            bossState.questions = [...QUIZ_DATABASE[4]];
+
+            const playerAvatar = document.getElementById('boss-player-avatar');
+            const playerImg = document.getElementById('boss-player-img');
+
+            playerAvatar.dataset.triedThumb = '';
+            playerAvatar.src = AVATARS[gameState.role];
+            playerAvatar.onerror = () => handleImageError(playerAvatar, gameState.role);
+
+            playerImg.dataset.triedThumb = '';
+            playerImg.src = AVATARS[gameState.role];
+            playerImg.onerror = () => handleImageError(playerImg, gameState.role);
+
+            document.getElementById('boss-player-name').textContent = gameState.studentName;
+            updateBossHpUI();
+            showView('view-boss-battle');
+            renderBossQuestion();
+        }
+
+        function renderBossQuestion() {
+            if (bossState.currentQIdx >= bossState.questions.length) bossState.currentQIdx = 0;
+
+            const q = bossState.questions[bossState.currentQIdx];
+            document.getElementById('boss-question-text').textContent = q.question;
+
+            const btnSpeech = document.getElementById('btn-speech-boss');
+            if (btnSpeech) btnSpeech.classList.remove('speech-active');
+
+            const optsContainer = document.getElementById('boss-options-container');
+            optsContainer.innerHTML = '';
+
+            const shuffledBossOpts = getShuffledOptions(q.options);
+            shuffledBossOpts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'ancient-btn px-4 py-3 rounded text-left font-medium text-amber-100 flex items-center justify-between border border-amber-700/60 hover:border-amber-400';
+                btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt}</span> <button type="button" onclick="event.stopPropagation(); speakText('${opt}');" class="p-1 hover:text-amber-300 text-stone-400"><i class="fa-solid fa-volume-low text-xs"></i></button>`;
+                btn.onclick = () => handleBossAnswer(opt);
+                optsContainer.appendChild(btn);
+            });
+
+            resetBossTimer();
+        }
+
+        function resetBossTimer() {
+            if (bossState.timerInterval) clearInterval(bossState.timerInterval);
+            bossState.timer = 20;
+            document.getElementById('boss-timer').textContent = bossState.timer;
+
+            bossState.timerInterval = setInterval(() => {
+                bossState.timer--;
+                document.getElementById('boss-timer').textContent = bossState.timer;
+                if (bossState.timer <= 0) {
+                    clearInterval(bossState.timerInterval);
+                    handleBossAnswer(null);
+                }
+            }, 1000);
+        }
+
+        function handleBossAnswer(selectedOpt) {
+            if (bossState.timerInterval) clearInterval(bossState.timerInterval);
+
+            const q = bossState.questions[bossState.currentQIdx];
+            const isCorrect = selectedOpt === q.answer;
+            gameState.totalAnswered++;
+
+            const playerSprite = document.getElementById('boss-player-sprite');
+            const enemySprite = document.getElementById('boss-enemy-sprite');
+
+            if (isCorrect) {
+                sfx.playAttack(); sfx.playCorrect();
+                gameState.score += 30; gameState.correctAnswered++;
+
+                playerSprite.classList.add('translate-x-12');
+                enemySprite.classList.add('hit-effect', 'damage-shake');
+                setTimeout(() => {
+                    playerSprite.classList.remove('translate-x-12');
+                    enemySprite.classList.remove('hit-effect', 'damage-shake');
+                }, 400);
+
+                bossState.enemyHp = Math.max(0, bossState.enemyHp - 50);
+            } else {
+                sfx.playWrong();
+                playerSprite.classList.add('hit-effect', 'damage-shake');
+                setTimeout(() => { playerSprite.classList.remove('hit-effect', 'damage-shake'); }, 400);
+
+                bossState.playerHp = Math.max(0, bossState.playerHp - 25);
+                gameState.wrongRecords.push({
+                    chapter: '第四章 終極試煉',
+                    question: q.question,
+                    wrongAns: selectedOpt || '超時未答',
+                    correctAns: q.answer,
+                    time: new Date().toLocaleTimeString()
+                });
+            }
+
+            updateBossHpUI();
+            saveStudentProgress();
+
+            if (bossState.enemyHp <= 0) {
+                setTimeout(() => {
+                    if (!gameState.completedChapters.includes(4)) gameState.completedChapters.push(4);
+                    gameState.statusText = "全部通關（已完成第1至4章）";
+                    saveStudentProgress();
+                    showCustomMessage('成功擊敗敵人！獲得最終勝利！', '【捷報】最終勝利', () => {
+                        returnToMap();
+                    });
+                }, 500);
+                return;
+            } else if (bossState.playerHp <= 0) {
+                setTimeout(() => {
+                    gameState.statusText = `第4章挑戰中（最高已完成 ${gameState.completedChapters.length} 章）`;
+                    saveStudentProgress();
+                    showCustomMessage('體力耗盡，敵人威力過強！請再接再厲修練詞語知識！', '【提示】挑戰失利', () => {
+                        returnToMap();
+                    });
+                }, 500);
+                return;
+            }
+
+            bossState.currentQIdx++;
+            setTimeout(renderBossQuestion, 800);
+        }
+
+        function updateBossHpUI() {
+            document.getElementById('boss-player-hp-text').textContent = `${bossState.playerHp} / ${bossState.playerMaxHp}`;
+            document.getElementById('boss-player-hp-bar').style.width = `${(bossState.playerHp / bossState.playerMaxHp) * 100}%`;
+            document.getElementById('boss-enemy-hp-text').textContent = `${bossState.enemyHp} / ${bossState.enemyMaxHp}`;
+            document.getElementById('boss-enemy-hp-bar').style.width = `${(bossState.enemyHp / bossState.enemyMaxHp) * 100}%`;
+        }
+
+        /* ================= 7. 教師後台系統與數據導出（Firebase 雲端即時同步版） ================= */
+        let teacherRealtimeRef = null;
+
+        function openTeacherModal() {
+            saveStudentProgress();
+            document.getElementById('modal-teacher').classList.remove('hidden');
+            if (!document.getElementById('teacher-dashboard-sec').classList.contains('hidden')) {
+                startTeacherRealtimeListener();
+                renderTeacherDashboard();
+            }
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('modal-teacher').classList.add('hidden');
+            stopTeacherRealtimeListener();
+        }
+
+        function verifyTeacherPwd() {
+            const pwd = document.getElementById('teacher-pwd-input').value;
+            const errEl = document.getElementById('teacher-pwd-err');
+
+            if (pwd === '0000') {
+                errEl.classList.add('hidden');
+                saveStudentProgress();
+                document.getElementById('teacher-login-sec').classList.add('hidden');
+                document.getElementById('teacher-dashboard-sec').classList.remove('hidden');
+                startTeacherRealtimeListener();
+                renderTeacherDashboard();
+            } else {
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function startTeacherRealtimeListener() {
+            if (!db) return;
+            stopTeacherRealtimeListener();
+            teacherRealtimeRef = db.ref('students');
+            teacherRealtimeRef.on('value', (snapshot) => {
+                const val = snapshot.val() || {};
+                const mapped = {};
+                Object.values(val).forEach(item => {
+                    if (item && item.name) {
+                        mapped[item.name] = item;
+                    }
+                });
+                cloudStudentCache = mapped;
+                localStorage.setItem('guofeng_student_records', JSON.stringify(mapped));
+                renderTeacherDashboardFromRecords(mapped);
+            }, (err) => {
+                console.warn("雲端讀取失敗，改用本機快取：", err);
+                const local = JSON.parse(localStorage.getItem('guofeng_student_records') || '{}');
+                renderTeacherDashboardFromRecords(local);
+            });
+        }
+
+        function stopTeacherRealtimeListener() {
+            if (teacherRealtimeRef) {
+                teacherRealtimeRef.off();
+                teacherRealtimeRef = null;
+            }
+        }
+
+        function saveStudentProgress() {
+            if (!gameState.studentName) return;
+
+            let records = JSON.parse(localStorage.getItem('guofeng_student_records') || '{}');
+            const accuracyNum = gameState.totalAnswered > 0 
+                ? Number(((gameState.correctAnswered / gameState.totalAnswered) * 100).toFixed(1))
+                : 0;
+            const accuracy = gameState.totalAnswered > 0 ? `${accuracyNum}%` : '尚無答題';
+
+            const completedList = [...gameState.completedChapters].sort((a, b) => a - b);
+            const completedSummary = completedList.length > 0
+                ? `已完成第 ${completedList.join('、')} 章`
+                : '尚未完成整章';
+
+            const studentData = {
+                name: gameState.studentName,
+                role: gameState.role === 'male' ? '男俠士' : '女俠士',
+                statusText: gameState.statusText || completedSummary,
+                completedSummary: completedSummary,
+                progress: `已通關 ${completedList.length} / 4 章`,
+                completedChapters: completedList,
+                score: gameState.score,
+                totalAnswered: gameState.totalAnswered,
+                correctAnswered: gameState.correctAnswered,
+                accuracyNum: accuracyNum,
+                accuracy: accuracy,
+                wrongRecords: gameState.wrongRecords || [],
+                lastUpdated: new Date().toLocaleString()
+            };
+
+            records[gameState.studentName] = studentData;
+            localStorage.setItem('guofeng_student_records', JSON.stringify(records));
+            cloudStudentCache[gameState.studentName] = studentData;
+
+            // 同步寫入 Firebase Realtime Database
+            if (db) {
+                const safeKey = getSafeStudentKey(gameState.studentName);
+                db.ref('students/' + safeKey).set(studentData).catch(err => {
+                    console.warn("雲端儲存失敗：", err);
+                });
+            }
+        }
+
+        function getActiveRecords() {
+            if (Object.keys(cloudStudentCache).length > 0) return cloudStudentCache;
+            return JSON.parse(localStorage.getItem('guofeng_student_records') || '{}');
+        }
+
+        function viewStudentWrongDetails(studentName) {
+            const records = getActiveRecords();
+            const item = records[studentName];
+            if (!item || !item.wrongRecords || item.wrongRecords.length === 0) {
+                showCustomMessage(`「${studentName}」目前沒有任何錯題紀錄，表現優異！`, '錯題檢視');
+                return;
+            }
+            const detailLines = item.wrongRecords.map((w, i) =>
+                `${i + 1}. [${w.chapter}] ${w.question}（誤選：${w.wrongAns} ／ 正解：${w.correctAns}）`
+            ).join('\n');
+            showCustomMessage(detailLines, `${studentName} 的錯題紀錄（共 ${item.wrongRecords.length} 題）`);
+        }
+
+        function renderTeacherDashboard() {
+            saveStudentProgress();
+            if (db) {
+                db.ref('students').once('value').then(snapshot => {
+                    const val = snapshot.val() || {};
+                    const mapped = {};
+                    Object.values(val).forEach(item => {
+                        if (item && item.name) mapped[item.name] = item;
+                    });
+                    cloudStudentCache = mapped;
+                    localStorage.setItem('guofeng_student_records', JSON.stringify(mapped));
+                    renderTeacherDashboardFromRecords(mapped);
+                }).catch(() => {
+                    renderTeacherDashboardFromRecords(getActiveRecords());
+                });
+            } else {
+                renderTeacherDashboardFromRecords(getActiveRecords());
+            }
+        }
+
+        function renderTeacherDashboardFromRecords(records) {
+            const tbody = document.getElementById('teacher-table-body');
+            tbody.innerHTML = '';
+
+            const studentList = Object.values(records);
+            document.getElementById('stat-total-students').textContent = `${studentList.length} 人`;
+
+            if (studentList.length === 0) {
+                document.getElementById('stat-avg-score').textContent = '0 分';
+                document.getElementById('stat-avg-accuracy').textContent = '0%';
+                document.getElementById('stat-top-wrong').textContent = '暫無';
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-stone-500">尚無學習數據紀錄（學生登入或開始答題後將雲端即時顯示）</td></tr>`;
+                return;
+            }
+
+            let totalScoreSum = 0;
+            let totalAccSum = 0;
+            let answeredStudentCount = 0;
+            const wrongWordCounts = {};
+
+            studentList.forEach(item => {
+                totalScoreSum += (item.score || 0);
+                if ((item.totalAnswered || 0) > 0) {
+                    totalAccSum += (item.accuracyNum || 0);
+                    answeredStudentCount++;
+                }
+                if (Array.isArray(item.wrongRecords)) {
+                    item.wrongRecords.forEach(w => {
+                        if (w.correctAns) {
+                            wrongWordCounts[w.correctAns] = (wrongWordCounts[w.correctAns] || 0) + 1;
+                        }
+                    });
+                }
+            });
+
+            const avgScore = (totalScoreSum / studentList.length).toFixed(1);
+            const avgAcc = answeredStudentCount > 0 ? (totalAccSum / answeredStudentCount).toFixed(1) + '%' : '0%';
+            const topWrongEntry = Object.entries(wrongWordCounts).sort((a, b) => b[1] - a[1])[0];
+
+            document.getElementById('stat-avg-score').textContent = `${avgScore} 分`;
+            document.getElementById('stat-avg-accuracy').textContent = avgAcc;
+            document.getElementById('stat-top-wrong').textContent = topWrongEntry ? `${topWrongEntry[0]} (${topWrongEntry[1]}次)` : '暫無';
+
+            studentList.forEach(item => {
+                const wrongCount = item.wrongRecords ? item.wrongRecords.length : 0;
+                const statusLabel = item.statusText || item.progress || '進行中';
+                const isChapterDone = statusLabel.includes('已完成') || statusLabel.includes('全部通關');
+                const badgeClass = isChapterDone
+                    ? 'bg-emerald-950/80 text-emerald-300 border-emerald-600/60'
+                    : 'bg-amber-950/80 text-amber-300 border-amber-600/60';
+                const safeName = item.name.replace(/'/g, "\\'");
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-900/80 transition";
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-amber-300">
+                        <div>${item.name}</div>
+                        <div class="text-[10px] text-stone-500 font-normal">${item.lastUpdated || ''}</div>
+                    </td>
+                    <td class="p-2.5">
+                        <span class="inline-block px-2 py-0.5 rounded border text-[11px] ${badgeClass}">${statusLabel}</span>
+                    </td>
+                    <td class="p-2.5 text-amber-400 font-bold">${item.score} 分</td>
+                    <td class="p-2.5">${item.correctAnswered || 0} / ${item.totalAnswered || 0} 題（${item.accuracy}）</td>
+                    <td class="p-2.5">
+                        <button type="button" onclick="viewStudentWrongDetails('${safeName}')" 
+                                class="px-2.5 py-1 rounded border text-[11px] ${wrongCount > 0 ? 'border-red-600/70 bg-red-950/60 text-red-300 hover:bg-red-900/80' : 'border-stone-700 bg-stone-900 text-stone-400'}">
+                            ${wrongCount > 0 ? `查看 ${wrongCount} 題` : '0 題'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function exportToCSV() {
+            const records = getActiveRecords();
+            if (Object.keys(records).length === 0) {
+                showCustomMessage('目前沒有數據可供導出！', '導出提示');
+                return;
+            }
+
+            let csvContent = "\uFEFF";
+            csvContent += "學生姓名,所選角色,即時學習進度,已通關章節,總得分,答對題數,總答題數,答對率,錯題數,錯題明細,最後紀錄時間\n";
+
+            Object.values(records).forEach(item => {
+                const wrongDetails = (item.wrongRecords || [])
+                    .map(w => `[${w.chapter}]${w.question}(誤:${w.wrongAns}/正:${w.correctAns})`)
+                    .join('；');
+                csvContent += `"${item.name}","${item.role}","${item.statusText || item.progress}","${item.completedSummary || item.progress}",${item.score},${item.correctAnswered || 0},${item.totalAnswered || 0},"${item.accuracy}",${item.wrongRecords ? item.wrongRecords.length : 0},"${wrongDetails}","${item.lastUpdated}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `詞語大冒險_雲端學習成績單_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        function clearAllData() {
+            showCustomConfirm('確定要清空雲端與本機所有學生的學習數據紀錄嗎？此操作不可逆！', '清空紀錄確認', () => {
+                localStorage.removeItem('guofeng_student_records');
+                cloudStudentCache = {};
+                if (db) {
+                    db.ref('students').remove().then(() => {
+                        renderTeacherDashboardFromRecords({});
+                    }).catch(() => {
+                        renderTeacherDashboardFromRecords({});
+                    });
+                } else {
+                    renderTeacherDashboardFromRecords({});
+                }
+            });
+        }
+
+        // 確保所有交互函式掛載至全域 window
+        window.selectCharacter = selectCharacter;
+        window.startGameJourney = startGameJourney;
+        window.returnToMap = returnToMap;
+        window.startChapter = startChapter;
+        window.nextQuestion = nextQuestion;
+        window.speakText = speakText;
+        window.speakCurrentQuestion = speakCurrentQuestion;
+        window.speakBossQuestion = speakBossQuestion;
+        window.openTeacherModal = openTeacherModal;
+        window.closeTeacherModal = closeTeacherModal;
+        window.verifyTeacherPwd = verifyTeacherPwd;
+        window.renderTeacherDashboard = renderTeacherDashboard;
+        window.viewStudentWrongDetails = viewStudentWrongDetails;
+        window.exportToCSV = exportToCSV;
+        window.clearAllData = clearAllData;
+        window.handleImageError = handleImageError;
+    </script>
+</body>
+</html>
